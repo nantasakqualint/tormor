@@ -48,11 +48,15 @@ def migrate(ctx, dry_run):
     for (module, migration, path) in to_be_run_scripts:
         if (module, migration) not in migrated_modules:
             query += get_migrate_sql(module, migration, os.path.join(path, module, migration))
-    if not dry_run:
-        print("Migrating modules...")
-        conn.execute(query)
+    if query:
+        if not dry_run:
+            print("Migrating modules...")
+            conn.execute(query)
+            print("Successfully migrated modules")
+        else:
+            print(query)
     else:
-        print(query)
+        pass
 
 @subcommand.command('enable-modules')
 @click.pass_context
@@ -85,7 +89,6 @@ def execute_sql_file(ctx, sqlfile):
         with open(sqlfile) as f:
             commands = f.read()
             conn.execute(commands)
-        conn.load_modules()
         print(sqlfile, "successfully executed")
     except Exception:
         print("Error whilst running", sqlfile)
@@ -117,17 +120,16 @@ def include(ctx, filename):
 
 def get_migrate_sql(module, migration, filename):
     try:
-        commands = """"""
         with open(filename) as f:
-            commands += """
+            commands = """
                 INSERT INTO module (name) VALUES('{module}') ON CONFLICT (name) DO NOTHING;
                 INSERT INTO migration (module_name, migration)  VALUES('{module}', '{migration}') ON CONFLICT (module_name, migration) DO NOTHING;    
                 {cmds}
             """.format(
                 module=module, migration=migration, cmds=f.read()
             )
-        print("Read", filename)
-        return commands
+            print("Read", filename)
+            return commands
     except Exception:
         print("Error whilst running", filename)
         raise
