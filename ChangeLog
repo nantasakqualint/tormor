@@ -1,3 +1,7 @@
+## Release 2.0
+2018-10-23  Tle Ekkul  <e.aryuth@gmail.com>
+ Change build tool from flit to poetry
+
 2019-04-18  Pattarawut Imamnuaysup  <kiraskylolax@gmail.com>
  Added code and test cases for asyncpg
  
