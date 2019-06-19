@@ -51,22 +51,22 @@ jobs:
             poetry run coveralls
   
 # This is the definition of another job, the one we use to publish the package to PyPI
-  deployment:
+  # deployment:
   
-    # Same environment
-    docker:
-        - image: circleci/python:3.7
-      steps:
+  #   # Same environment
+  #   docker:
+  #     - image: circleci/python:3.7
+  #   steps:
 
-        # Gets the code
-        - checkout
+  #     # Gets the code
+  #     - checkout
 
-        # Use `poetry publish` to Publish the package using username and password from CircleCI environment variables
-        # Which can be configured inside CircleCI's interface
-        - run:
-            name: Push to PyPI
-            command: |
-              poetry publish --build --username "${PYPI_USERNAME}" --password "${PYPI_PASSWORD}" --no-interaction
+  #     # Use `poetry publish` to Publish the package using username and password from CircleCI environment variables
+  #     # Which can be configured inside CircleCI's interface
+  #     - run:
+  #         name: Push to PyPI
+  #         command: |
+  #           poetry publish --build --username "${PYPI_USERNAME}" --password "${PYPI_PASSWORD}" --no-interaction
 
 # In the workflows section, we specify when we want to run the jobs defined
 workflows:
