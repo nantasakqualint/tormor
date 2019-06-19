@@ -28,7 +28,6 @@ class TestScript():
         self.conn.execute('''INSERT INTO module(name) VALUES ('customer')''')
         self.conn.execute('''INSERT INTO module(name) VALUES ('employee')''')
         self.conn.execute('''INSERT INTO module(name) VALUES ('product')''')
-        self.conn.execute('''INSERT INTO module(name) VALUES ('department')''')
         self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'migrate'])
         result = self.conn.fetch("SELECT * FROM migration")
         actual_result = set(record.get("module_name") for record in result)
