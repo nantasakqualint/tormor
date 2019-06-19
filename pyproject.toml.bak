@@ -1,0 +1,19 @@
+[build-system]
+requires = ["flit"]
+build-backend = "flit.buildapi"
+
+[tool.flit.metadata]
+module = "tormor"
+author = "Tle Ekkul"
+author-email = "e.aryuth@gmail.com"
+home-page = "https://github.com/Proteus-tech/tormor"
+classifiers = ["License :: OSI Approved :: MIT License"]
+description-file = "README.md"
+requires = [
+    "asyncpg==0.18.3",
+    "click==7.0",
+]
+requires-python = "~=3.6"
+
+[tool.flit.scripts]
+tormor = "tormor.main_script:script"

@@ -1,18 +1,22 @@
+[tool.poetry]
+name = "tormor"
+version = "2.0"
+description = "Postgres migration library"
+authors = ["Tle Ekkul <aryuth.ekkul@proteus-tech.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = ">=3.7"
+asyncpg = "^0.18.3"
+click = "^7.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^4.6"
+coveralls = "^1.8"
+
+[tool.poetry.scripts]
+tormor = "tormor.main_script:script"
+
 [build-system]
-requires = ["flit"]
-build-backend = "flit.buildapi"
-
-[tool.flit.metadata]
-module = "tormor"
-author = "Tle Ekkul"
-author-email = "e.aryuth@gmail.com"
-home-page = "https://github.com/Proteus-tech/tormor"
-classifiers = ["License :: OSI Approved :: MIT License"]
-description-file = "README.md"
-requires = [
-    "psycopg2-binary==2.7.5"
-]
-requires-python = "~=3.6"
-
-[tool.flit.scripts]
-tormor = "tormor.cmdline:script"
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
