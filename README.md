@@ -1,4 +1,7 @@
 # Tormor Command Line Tool
+[![PyPI version](https://badge.fury.io/py/tormor.svg)](https://badge.fury.io/py/tormor)
+[![CircleCI](https://circleci.com/gh/Proteus-tech/tormor.svg?style=svg)](https://circleci.com/gh/Proteus-tech/tormor)
+[![Coverage Status](https://coveralls.io/repos/github/Proteus-tech/tormor/badge.svg)](https://coveralls.io/github/Proteus-tech/tormor)
 
 Tormor is a command line tool for migrating database. To use Tormor, please first ensure these requirements:
 
