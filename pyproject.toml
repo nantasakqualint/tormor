@@ -4,6 +4,9 @@ version = "2.0"
 description = "Postgres migration library"
 authors = ["Tle Ekkul <aryuth.ekkul@proteus-tech.com>"]
 license = "MIT"
+readme="README.md"
+homepage = "https://github.com/Proteus-tech/tormor"
+repository = "https://github.com/Proteus-tech/tormor"
 
 [tool.poetry.dependencies]
 python = ">=3.7"
