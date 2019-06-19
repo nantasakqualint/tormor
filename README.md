@@ -50,3 +50,15 @@ $ tormor include filename
 ```sh
 $ tormor sql filename
 ```
+
+## Dev
+
+### Requirements
+- Poetry
+- PostgreSQL
+
+```bash
+poetry install
+poetry shell
+./runtests
+```
