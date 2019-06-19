@@ -35,8 +35,7 @@ class TestScript():
         self.conn.execute("DROP TABLE customer")
         self.conn.execute("DROP TABLE employee")
         self.conn.execute("DROP TABLE product")
-        self.conn.execute("DROP TABLE department")
-        expected_result = {"customer", "employee", "product", "department"}
+        expected_result = {"customer", "employee", "product"}
         assert actual_result == expected_result
 
     def test_script_to_dry_migrate(self):
@@ -47,10 +46,10 @@ class TestScript():
         result = self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'migrate', '--dry-run'])
 
     def test_script_to_include(self):
-        self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'include', 'tests/script_file.txt'])
-        result = self.conn.fetch("SELECT name FROM module")
-        actual_result = set(record.get("name") for record in result)
-        assert {"customer", "employee", "product"}.issubset(actual_result)
+        self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'include', 'tormor/tests/script_file.txt'])
+        result = self.conn.fetch("SELECT name FROM module GROUP BY name ORDER BY name")
+        actual_result = [x['name'] for x in result]
+        assert ["customer", "employee", "product"] == actual_result
     
     def test_script_to_include_without_file(self):
         result = self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'include'])
@@ -67,7 +66,7 @@ class TestScript():
         assert result.exit_code == click.UsageError.exit_code
 
     def test_script_to_execute_sql(self):
-        self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'sql', 'tests/Schema/customer/01_customer.sql'])
+        self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'sql', 'tormor/tests/Schema/customer/01_customer.sql'])
         result = self.conn.fetch("SELECT * FROM customer")
         actual_result = set(record.get("name") for record in result)
         expected_result = {"Customer1", "Customer2", "Customer3"}
