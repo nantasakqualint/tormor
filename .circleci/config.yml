@@ -60,7 +60,7 @@ jobs:
           name: run tests
           command: |
             . venv/bin/activate
-            PGDBNAME=circle_test ./runtests.sh
+            PGDBNAME=circle_test pytest -v
       - store_test_results:
           path: test-reports
       - store_artifacts:
