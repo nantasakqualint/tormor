@@ -50,11 +50,16 @@ jobs:
 
       # Last step, runs our tests ommiting the dependencies path (so we don't take their coverage into account)
       # And send our coverage somewhere, in this case, coveralls
+      # - run:
+      #     name: Run Pytest, report coverage
+      #     command: |
+      #       coverage run --omit="/home/circleci/.cache/pypoetry/virtualenvs" -m pytest
+      #       coveralls
       - run:
-          name: Run Pytest, report coverage
+          name: run tests
           command: |
-            coverage run --omit="/home/circleci/.cache/pypoetry/virtualenvs" -m pytest
-            coveralls
+            . venv/bin/activate
+            PGDBNAME=circle_test pytest -v --cov-report term-missing --cov=. --cov-report xml:test-reports/coverage.xml
   
 # This is the definition of another job, the one we use to publish the package to PyPI
   # deployment:
