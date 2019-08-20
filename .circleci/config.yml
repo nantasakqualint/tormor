@@ -55,12 +55,16 @@ jobs:
       #     command: |
       #       coverage run --omit="/home/circleci/.cache/pypoetry/virtualenvs" -m pytest
       #       coveralls
+      - run: mkdir test-reports
       - run:
           name: run tests
           command: |
             . venv/bin/activate
-            PGDBNAME=circle_test pytest -v --cov-report term-missing --cov=. --cov-report xml:test-reports/coverage.xml
-  
+            PGDBNAME=circle_test pytest -v
+      - store_test_results:
+          path: test-reports
+      - store_artifacts:
+          path: test-reports
 # This is the definition of another job, the one we use to publish the package to PyPI
   # deployment:
   
