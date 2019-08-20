@@ -24,20 +24,26 @@ jobs:
       # and poetry.lock is updated every time we add a new dependency to our project
       - restore_cache:
           keys:
-            - deps-{{ checksum "poetry.lock" }}
+            - deps-{{ checksum "pyproject.toml" }}
+            - deps-
 
       # Let's install the dependencies
       - run:
-          name: Install Dependencies
+          name: install flit
           command: |
-            poetry install
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install flit
 
-      # Save's the specified path as a cache. This is the path Poetry uses to install the dependencies
-      # So if you don't install anything new, this folder won't change and the cache will be effective
+      - run:
+          name: install dependencies
+          command: |
+            . venv/bin/activate
+            flit install
       - save_cache:
-          key: deps-{{ checksum "poetry.lock" }}
-          paths: 
-            - /home/circleci/.cache/pypoetry/virtualenvs
+          paths:
+            - ./venv
+          key: deps-{{ checksum "pyproject.toml" }}
       
       # TODO: Run black code formatter
       # TODO: Run mypy/pyre
@@ -47,8 +53,8 @@ jobs:
       - run:
           name: Run Pytest, report coverage
           command: |
-            poetry run coverage run --omit="/home/circleci/.cache/pypoetry/virtualenvs" -m pytest
-            poetry run coveralls
+            coverage run --omit="/home/circleci/.cache/pypoetry/virtualenvs" -m pytest
+            coveralls
   
 # This is the definition of another job, the one we use to publish the package to PyPI
   # deployment:
