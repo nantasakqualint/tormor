@@ -57,11 +57,16 @@ $ tormor sql filename
 ## Dev
 
 ### Requirements
-- Poetry
+- flit
 - PostgreSQL
 
 ```bash
-poetry install
-poetry shell
+pip install flit
+flit install
 ./runtests
+```
+
+### Publish to PyPI
+```
+flit publish
 ```

@@ -5,7 +5,7 @@ import click
 import os
 
 # String of queries to add module
-ADD_MODULE = """INSERT INTO module(name) VALUES($1)"""
+ADD_MODULE = """INSERT INTO module(name) VALUES($1);"""
 
 # String of queries to create table 'module' and 'migration'
 BOOTSTRAP_SQL = """
@@ -50,9 +50,9 @@ def migrate(ctx, dry_run):
             query += get_migrate_sql(module, migration, os.path.join(path, module, migration))
     if query:
         if not dry_run:
-            print("Migrating modules...")
+            print("/*Migrating modules...*/")
             conn.execute(query)
-            print("Successfully migrated modules")
+            print("/*Successfully migrated modules*/")
         else:
             print(query)
     else:
@@ -60,21 +60,27 @@ def migrate(ctx, dry_run):
 
 @subcommand.command('enable-modules')
 @click.pass_context
+@click.option('--dry-run', is_flag=True)
 @click.argument('modules', required=True, nargs=-1)
-def enable_modules(ctx, modules):
+def enable_modules(ctx, dry_run, modules):
     """Enable modules"""
 
     conn = ctx.obj['cnx']
     modules_to_be_added = set(modules)
+    query=""
     try:
         current_modules = conn.load_modules()
     except SchemaNotPresent:
-        print("No existing module table. Bootstrapping...")
         conn.execute(BOOTSTRAP_SQL)
         current_modules = conn.load_modules()
     for each_module in modules_to_be_added.difference(current_modules):
-        conn.execute(ADD_MODULE.replace("$1", "\'" + each_module +"\'"))
-        print(each_module, "enabled")
+        query += ADD_MODULE.replace("$1", "\'" + each_module +"\'")
+    if not query:
+        return
+    if dry_run:
+        print(query)
+    else:
+        conn.execute(query)
 
 @subcommand.command('sql')
 @click.pass_context
@@ -89,7 +95,7 @@ def execute_sql_file(ctx, sqlfile):
         with open(sqlfile) as f:
             commands = f.read()
             conn.execute(commands)
-        print(sqlfile, "successfully executed")
+        print("/*", sqlfile, "successfully executed*/")
     except Exception:
         print("Error whilst running", sqlfile)
         raise
@@ -99,6 +105,7 @@ def execute_sql_file(ctx, sqlfile):
 @click.argument('filename', required=True, nargs=1)
 def include(ctx, filename):
     """Run all commands inside a file"""
+
     with open(filename, newline="") as f:
         lines = csv.reader(f, delimiter=" ")
         for each_line in lines:
@@ -108,11 +115,18 @@ def include(ctx, filename):
                     if len(each_line) == 0:
                         ctx.invoke(migrate, dry_run = False)
                     elif len(each_line) == 1:
-                        ctx.invoke(migrate, dry_run = True if each_line[0] == '--dry-run' else False)
+                        if each_line[0] == '--dry-run':
+                            ctx.invoke(migrate, dry_run = True)
+                        else:
+                            raise click.ClickException("Migrate command got an unexpected option argument: {}".format(each_line))
                     else:
-                        raise click.ClickException("Error in migrate command")
+                        raise click.ClickException("Migrate command takes at most 1 argument but {} were given".format(len(each_line)))
                 elif cmd == "enable-modules":
-                    ctx.invoke(enable_modules, modules = each_line)
+                    if each_line[0] == '--dry-run':
+                        each_line.pop(0)
+                        ctx.invoke(enable_modules, dry_run = True, modules = each_line)
+                    else:
+                        ctx.invoke(enable_modules, dry_run = False, modules = each_line)
                 elif cmd == "sql" and len(each_line) == 1:
                     ctx.invoke(execute_sql_file, sqlfile = each_line[0])
                 else:
@@ -128,7 +142,7 @@ def get_migrate_sql(module, migration, filename):
             """.format(
                 module=module, migration=migration, cmds=f.read()
             )
-            print("Read", filename)
+            print("/*Read", filename, "*/")
             return commands
     except Exception:
         print("Error whilst running", filename)
