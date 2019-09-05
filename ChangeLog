@@ -1,4 +1,6 @@
-## Release 2.0
+2019-09-05  SukitOwl  <sukit_owl@hotmail.com>
+ fixed load modules bug
+
 2018-10-23  Tle Ekkul  <e.aryuth@gmail.com>
  Change build tool from flit to poetry
 
