@@ -30,7 +30,7 @@ class Connection(object):
     def load_modules(self):
         try:
             name_records = self.fetch("SELECT name FROM module")
-            self._modules = set(each_record.get("name") for each_record in name_records)
+            self._modules = set(each_record['name'] for each_record in name_records)
         except asyncpg.UndefinedTableError:
             raise SchemaNotPresent
         return self._modules
