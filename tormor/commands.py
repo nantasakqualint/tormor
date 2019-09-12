@@ -31,9 +31,11 @@ def subcommand():
 @subcommand.command('migrate')
 @click.pass_context
 @click.option('--dry-run', is_flag=True)
-def migrate(ctx, dry_run):
+@click.argument('modules', required=True, nargs=-1)
+def migrate(ctx, dry_run, modules):
     """Run all migrations"""
 
+    modules_to_be_added = set(modules)
     conn = ctx.obj['cnx']
     paths = get_schema_path()
     migrated_modules = set(conn.fetch("SELECT module_name, migration FROM migration"))
@@ -42,7 +44,7 @@ def migrate(ctx, dry_run):
     for each_path in paths:
         for root, dirs, files in os.walk(each_path):
             relpath = os.path.relpath(root, each_path)
-            if relpath != "." and relpath in conn.load_modules():
+            if relpath != "." and relpath in modules_to_be_added:
                 to_be_run_scripts += [(relpath, filepath, each_path) for filepath in files if filepath.endswith(".sql")]
     to_be_run_scripts.sort(key=lambda m: m[1])
     for (module, migration, path) in to_be_run_scripts:
@@ -57,30 +59,6 @@ def migrate(ctx, dry_run):
             print(query)
     else:
         pass
-
-@subcommand.command('enable-modules')
-@click.pass_context
-@click.option('--dry-run', is_flag=True)
-@click.argument('modules', required=True, nargs=-1)
-def enable_modules(ctx, dry_run, modules):
-    """Enable modules"""
-
-    conn = ctx.obj['cnx']
-    modules_to_be_added = set(modules)
-    query=""
-    try:
-        current_modules = conn.load_modules()
-    except SchemaNotPresent:
-        conn.execute(BOOTSTRAP_SQL)
-        current_modules = conn.load_modules()
-    for each_module in modules_to_be_added.difference(current_modules):
-        query += ADD_MODULE.replace("$1", "\'" + each_module +"\'")
-    if not query:
-        return
-    if dry_run:
-        print(query)
-    else:
-        conn.execute(query)
 
 @subcommand.command('sql')
 @click.pass_context
@@ -112,21 +90,20 @@ def include(ctx, filename):
             if len(each_line) and not each_line[0].startswith("#"):
                 cmd = each_line.pop(0)
                 if cmd == "migrate":
-                    if len(each_line) == 0:
-                        ctx.invoke(migrate, dry_run = False)
-                    elif len(each_line) == 1:
-                        if each_line[0] == '--dry-run':
-                            ctx.invoke(migrate, dry_run = True)
-                        else:
-                            raise click.ClickException("Migrate command got an unexpected option argument: {}".format(each_line))
+                    if each_line[len(each_line)-1] == '--dry-run':
+                        each_line.pop(len(each_line)-1)
+                        ctx.invoke(migrate, dry_run = True, modules = each_line)
                     else:
-                        raise click.ClickException("Migrate command takes at most 1 argument but {} were given".format(len(each_line)))
-                elif cmd == "enable-modules":
-                    if each_line[0] == '--dry-run':
-                        each_line.pop(0)
-                        ctx.invoke(enable_modules, dry_run = True, modules = each_line)
-                    else:
-                        ctx.invoke(enable_modules, dry_run = False, modules = each_line)
+                        ctx.invoke(migrate, dry_run = False, modules = each_line)
+                    # if len(each_line) == 0:
+                    #     ctx.invoke(migrate, dry_run = False)
+                    # elif len(each_line) == 1:
+                    #     if each_line[0] == '--dry-run':
+                    #         ctx.invoke(migrate, dry_run = True)
+                    #     else:
+                    #         raise click.ClickException("Migrate command got an unexpected option argument: {}".format(each_line))
+                    # else:
+                    #     raise click.ClickException("Migrate command takes at most 1 argument but {} were given".format(len(each_line)))
                 elif cmd == "sql" and len(each_line) == 1:
                     ctx.invoke(execute_sql_file, sqlfile = each_line[0])
                 else:
