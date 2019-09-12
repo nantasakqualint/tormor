@@ -84,14 +84,14 @@ class TestScript():
         migration = self.conn.fetch("""
             SELECT * FROM public.migration; 
         """)         
-        assert migration[0][0] = 'customer'
-        assert migratino[0][1] = '01_customer.sql'
+        assert migration[0][0] == 'customer'
+        assert migration[0][1] == '01_customer.sql'
 
-        assert migration[1][0] = 'customer'
-        assert migratino[1][1] = '03_customer.sql'
+        assert migration[1][0] == 'employee'
+        assert migration[1][1] == '01_employee.sql'
 
-        assert migration[2][0] = 'employee'
-        assert migratino[2][1] = '01_employee.sql'
+        assert migration[2][0] == 'customer'
+        assert migration[2][1] == '03_customer.sql'
 
 
     def test_script_to_dry_migrate(self):
