@@ -3,6 +3,7 @@ from tormor.path_helper import get_schema_path
 import csv
 import click
 import os
+import warnings
 
 # String of queries to add module
 ADD_MODULE = """INSERT INTO module(name) VALUES($1);"""
@@ -58,8 +59,8 @@ def migrate(ctx, dry_run, modules):
         else:
             print(query)
     else:
-        print("\033[93m" + "/* Warning: migrate without module will do nothing */" + "\033[0m")
-        print("\033[93m" + "/* Example usage: migrate [module...] */" + "\033[0m")
+        warnings.warn("migrate will be deprecated in next version, use migrate [modules...] instead", DeprecationWarning)
+
 
 @subcommand.command('enable-modules')
 @click.pass_context
@@ -67,10 +68,8 @@ def migrate(ctx, dry_run, modules):
 @click.argument('modules', required=True, nargs=-1)
 def enable_modules(ctx, dry_run, modules):
     """Enable modules"""
-
     ctx.invoke(migrate, dry_run = dry_run, modules = modules)
-    print("\033[93m" + "/* Warning: enable-modules will deprecate in next version */" + "\033[0m")
-    print("\033[93m" + "/* Exmaple usage: migrate [module...] */" + "\033[0m")
+    warnings.warn("enable-modules will be deprecated in next version, use migrate [modules...] instead", DeprecationWarning)
 
 
 @subcommand.command('sql')
