@@ -31,7 +31,7 @@ def subcommand():
 @subcommand.command('migrate')
 @click.pass_context
 @click.option('--dry-run', is_flag=True)
-@click.argument('modules', required=True, nargs=-1)
+@click.argument('modules', required=False, nargs=-1)
 def migrate(ctx, dry_run, modules):
     """Run all migrations"""
 
@@ -58,7 +58,20 @@ def migrate(ctx, dry_run, modules):
         else:
             print(query)
     else:
-        pass
+        print("\033[93m" + "/* Warning: migrate without module will do nothing */" + "\033[0m")
+        print("\033[93m" + "/* Example usage: migrate [module...] */" + "\033[0m")
+
+@subcommand.command('enable-modules')
+@click.pass_context
+@click.option('--dry-run', is_flag=True)
+@click.argument('modules', required=True, nargs=-1)
+def enable_modules(ctx, dry_run, modules):
+    """Enable modules"""
+
+    ctx.invoke(migrate, dry_run = dry_run, modules = modules)
+    print("\033[93m" + "/* Warning: enable-modules will deprecate in next version */" + "\033[0m")
+    print("\033[93m" + "/* Exmaple usage: migrate [module...] */" + "\033[0m")
+
 
 @subcommand.command('sql')
 @click.pass_context
