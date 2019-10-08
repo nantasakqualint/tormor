@@ -29,61 +29,47 @@ class TestScript():
         result = self.runner.invoke(script, ['--xyz'])
         assert result.exit_code == click.UsageError.exit_code
 
-    # def xtest_script_to_migrate(self):
-    #     self.conn.execute('''INSERT INTO module(name) VALUES ('customer')''')
-    #     self.conn.execute('''INSERT INTO module(name) VALUES ('employee')''')
-    #     self.conn.execute('''INSERT INTO module(name) VALUES ('product')''')
-    #     self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'migrate'])
-    #     result = self.conn.fetch("SELECT * FROM migration")
-    #     actual_result = set(record.get("module_name") for record in result)
-    #     self.conn.execute("DROP TABLE customer")
-    #     self.conn.execute("DROP TABLE employee")
-    #     self.conn.execute("DROP TABLE product")
-    #     expected_result = {"customer", "employee", "product"}
-    #     assert actual_result == expected_result
-
     def test_script_to_migrate(self):
         self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'migrate', 'customer'])
         table_exists = self.conn.fetch("""
-            SELECT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'customer'); 
+            SELECT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'customer');
         """)
         assert table_exists[0][0] == True
         customers = self.conn.fetch("""
-            SELECT * FROM public.customer; 
+            SELECT * FROM public.customer;
         """)
         actual_result = set(record.get("name") for record in customers)
         expected_result = {"Customer1", "Customer2", "Customer3", "Customer5"}
-        assert actual_result == expected_result        
-
+        assert actual_result == expected_result
 
     def test_script_to_migrate_multiple_module(self):
         self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'migrate', 'employee', 'customer'])
         customer_table_exists = self.conn.fetch("""
-            SELECT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'customer'); 
+            SELECT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'customer');
         """)
         assert customer_table_exists[0][0] == True
         enployee_table_exists = self.conn.fetch("""
-            SELECT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'employee'); 
+            SELECT EXISTS (SELECT 1 FROM pg_tables WHERE schemaname = 'public' AND tablename = 'employee');
         """)
         assert enployee_table_exists[0][0] == True
 
         customers = self.conn.fetch("""
-            SELECT * FROM public.customer; 
+            SELECT * FROM public.customer;
         """)
         actual_result = set(record.get("name") for record in customers)
         expected_result = {"Customer1", "Customer2", "Customer3", "Customer5"}
-        assert actual_result == expected_result        
+        assert actual_result == expected_result
 
         employees = self.conn.fetch("""
-            SELECT * FROM public.employee; 
+            SELECT * FROM public.employee;
         """)
         actual_result = set(record.get("name") for record in employees)
         expected_result = {"Employee1", "Employee2", "Employee3"}
         assert actual_result == expected_result
 
         migration = self.conn.fetch("""
-            SELECT * FROM public.migration; 
-        """)         
+            SELECT * FROM public.migration;
+        """)
         assert migration[0][0] == 'customer'
         assert migration[0][1] == '01_customer.sql'
 
@@ -92,7 +78,6 @@ class TestScript():
 
         assert migration[2][0] == 'customer'
         assert migration[2][1] == '03_customer.sql'
-
 
     def test_script_to_dry_migrate(self):
         self.conn.execute('''INSERT INTO module(name) VALUES ('customer')''')

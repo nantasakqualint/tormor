@@ -3,4 +3,4 @@ set -eux
 cd $(dirname 0)
 bash tormor/tests/cleanup.sh
 bash tormor/tests/bootstrap.sh
-export SCHEMA_PATH="$(pwd)/tests/Schema" && pytest -v $*
+SCHEMA_PATH="$(pwd)/tests/Schema:$(pwd)/tests/Schema2" && pytest -v $*
