@@ -39,7 +39,13 @@ def migrate(ctx, dry_run, modules):
     modules_to_be_added = set(modules)
     conn = ctx.obj['cnx']
     paths = get_schema_path()
-    migrated_modules = set(conn.fetch("SELECT module_name, migration FROM migration"))
+
+    try:
+        migrated_modules = conn.load_modules()
+    except SchemaNotPresent:
+        conn.execute(BOOTSTRAP_SQL)
+        migrated_modules = conn.load_modules()
+
     to_be_run_scripts = []
     query = ""
     for each_path in paths:
