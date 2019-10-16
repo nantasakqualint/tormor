@@ -1,6 +1,6 @@
 import click
 from tormor.dsn import makeDSN
-from tormor.commands import enable_modules, migrate, execute_sql_file, include
+from tormor.commands import migrate, execute_sql_file, include
 from tormor.connections import Connection
 import csv
 
@@ -24,6 +24,5 @@ def script(ctx, h, d, u, p, password):
 
 
 script.add_command(migrate)
-script.add_command(enable_modules)
 script.add_command(execute_sql_file)
 script.add_command(include)

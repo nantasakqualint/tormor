@@ -1,5 +1,4 @@
 from tormor.connections import Connection
-from tormor.commands import execute_sql_file, migrate, include, enable_modules
 import asyncpg
 from asyncpg.exceptions import InvalidCatalogNameError, UndefinedTableError
 import pytest
