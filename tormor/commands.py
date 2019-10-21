@@ -29,6 +29,7 @@ CREATE TABLE migration (
 def subcommand():
     pass
 
+
 @subcommand.command('migrate')
 @click.pass_context
 @click.option('--dry-run', is_flag=True)
@@ -96,6 +97,7 @@ def execute_sql_file(ctx, sqlfile):
         print("Error whilst running", sqlfile)
         raise
 
+
 @subcommand.command()
 @click.pass_context
 @click.argument('filename', required=True, nargs=1)
@@ -108,15 +110,24 @@ def include(ctx, filename):
             if len(each_line) and not each_line[0].startswith("#"):
                 cmd = each_line.pop(0)
                 if cmd == "migrate":
-                    if each_line[len(each_line)-1] == '--dry-run':
-                        each_line.pop(len(each_line)-1)
+                    try:
+                        index = each_line.index('--dry-run')
+                        each_line.pop(index)
                         ctx.invoke(migrate, dry_run = True, modules = each_line)
-                    else:
+                    except ValueError:
                         ctx.invoke(migrate, dry_run = False, modules = each_line)
+                elif cmd == "enable-modules":
+                    try:
+                        index = each_line.index('--dry-run')
+                        each_line.pop(index)
+                        ctx.invoke(enable_modules, dry_run = True, modules = each_line)
+                    except ValueError:
+                        ctx.invoke(enable_modules, dry_run = False, modules = each_line)
                 elif cmd == "sql" and len(each_line) == 1:
                     ctx.invoke(execute_sql_file, sqlfile = each_line[0])
                 else:
                     raise click.ClickException("Unknown command or parameter")
+
 
 def get_migrate_sql(module, migration, filename):
     try:
