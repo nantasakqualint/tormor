@@ -100,8 +100,9 @@ def execute_sql_file(ctx, sqlfile):
 
 @subcommand.command()
 @click.pass_context
+@click.option('--dry-run', is_flag=True)
 @click.argument('filename', required=True, nargs=1)
-def include(ctx, filename):
+def include(ctx, dry_run, filename):
     """Run all commands inside a file"""
 
     with open(filename, newline="") as f:
@@ -110,19 +111,9 @@ def include(ctx, filename):
             if len(each_line) and not each_line[0].startswith("#"):
                 cmd = each_line.pop(0)
                 if cmd == "migrate":
-                    try:
-                        index = each_line.index('--dry-run')
-                        each_line.pop(index)
-                        ctx.invoke(migrate, dry_run = True, modules = each_line)
-                    except ValueError:
-                        ctx.invoke(migrate, dry_run = False, modules = each_line)
+                    ctx.invoke(migrate, dry_run = dry_run, modules = each_line)
                 elif cmd == "enable-modules":
-                    try:
-                        index = each_line.index('--dry-run')
-                        each_line.pop(index)
-                        ctx.invoke(enable_modules, dry_run = True, modules = each_line)
-                    except ValueError:
-                        ctx.invoke(enable_modules, dry_run = False, modules = each_line)
+                    ctx.invoke(enable_modules, dry_run = dry_run, modules = each_line)
                 elif cmd == "sql" and len(each_line) == 1:
                     ctx.invoke(execute_sql_file, sqlfile = each_line[0])
                 else:
