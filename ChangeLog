@@ -1,3 +1,6 @@
+2019-10-22  SukitOwl  <sukit_owl@hotmail.com>
+ Fixed read migrated file bug
+
 2019-09-05  SukitOwl  <sukit_owl@hotmail.com>
  Change migrate will receive module that need to migrate
  Change enable-modules will deprecate in next version
