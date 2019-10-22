@@ -5,6 +5,8 @@ import click
 import os
 import warnings
 
+import asyncpg
+
 # String of queries to add module
 ADD_MODULE = """INSERT INTO module(name) VALUES($1);"""
 
@@ -42,10 +44,10 @@ def migrate(ctx, dry_run, modules):
     paths = get_schema_path()
 
     try:
-        migrated_modules = conn.load_modules()
-    except SchemaNotPresent:
+        migrated_modules = set(conn.fetch("SELECT module_name, migration FROM migration;"))
+    except asyncpg.UndefinedTableError:
         conn.execute(BOOTSTRAP_SQL)
-        migrated_modules = conn.load_modules()
+        migrated_modules = set(conn.fetch("SELECT module_name, migration FROM migration;"))
 
     to_be_run_scripts = []
     query = ""
