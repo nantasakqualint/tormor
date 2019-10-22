@@ -15,7 +15,6 @@ class TestScript():
         self.conn.execute("DROP TABLE IF EXISTS customer;")
         self.conn.execute("DROP TABLE IF EXISTS employee;")
         self.conn.execute("DROP TABLE IF EXISTS product;")
-        self.conn.execute(BOOTSTRAP_SQL)
 
     def teardown(self):
         self.conn.execute("DROP TABLE IF EXISTS migration;")
@@ -80,6 +79,7 @@ class TestScript():
         assert migration[2][1] == '03_customer.sql'
 
     def test_script_to_dry_migrate(self):
+        self.conn.execute(BOOTSTRAP_SQL)
         self.conn.execute('''INSERT INTO module(name) VALUES ('customer')''')
         self.conn.execute('''INSERT INTO module(name) VALUES ('employee')''')
         self.conn.execute('''INSERT INTO module(name) VALUES ('product')''')
@@ -95,7 +95,7 @@ class TestScript():
         assert ["customer", "employee", "product"] == actual_result
 
     def test_script_to_include_with_dry_migrate(self):
-        self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'include', 'tormor/tests/script_file_dry.txt'])
+        self.runner.invoke(script, ['-h', 'localhost', '-d', 'tormordb', 'include', '--dry-run', 'tormor/tests/script_file_dry.txt'])
         result = self.conn.fetch("SELECT name FROM module GROUP BY name ORDER BY name")
         actual_result = [x['name'] for x in result]
         assert [] == actual_result
